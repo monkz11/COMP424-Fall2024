@@ -41,9 +41,51 @@ class StudentAgent(Agent):
     start_time = time.time()
     time_taken = time.time() - start_time
 
-    print("My AI's turn took ", time_taken, "seconds.")
+    #print("My AI's turn took ", time_taken, "seconds.")
 
     # Dummy return (you should replace this with your actual logic)
     # Returning a random valid move as an example
-    return random_move(chess_board,player)
+    # greedy solution
+    total_count = 0
+    best_move = ()
+    set_moves = get_valid_moves(chess_board,player)
+    corner_cases = [(0,1),(1,0),(1,1),(0, len(chess_board)-2), (1, len(chess_board)-2), (1, len(chess_board)-1),(len(chess_board)-1,1), (len(chess_board)-2,0), (len(chess_board)-2,1), (len(chess_board)-2,len(chess_board)-2), (len(chess_board)-2,len(chess_board)-1), (len(chess_board)-1,len(chess_board)-1)]
+
+    for corner_moves in set_moves:
+      if len(set_moves) > 1 and (corner_moves in corner_cases):
+        set_moves.remove(corner_moves)
+
+      
+    for valid_move in set_moves:
+
+      opponent = 3 - player
+      r, c = valid_move
+      directions = [(-1, 0), (1, 0), (0, -1), (0, 1),
+                    (-1, -1), (-1, 1), (1, -1), (1, 1)] 
+
+      def count_in_direction(dr, dc):
+          """Count flips in a single direction."""
+          flips = 0
+          i, j = r + dr, c + dc
+          while 0 <= i < len(chess_board) and 0 <= j < len(chess_board[0]) and chess_board[i][j] == opponent:
+              flips += 1
+              i += dr
+              j += dc
+          if 0 <= i < len(chess_board) and 0 <= j < len(chess_board[0]) and chess_board[i][j] == player:
+              return flips
+          return 0
+
+      if chess_board[r][c] != 0:
+          return 0
+
+      total_flips = sum(count_in_direction(dr, dc) for dr, dc in directions)
+
+
+
+      if total_flips > total_count:
+        total_count = total_flips
+        best_move = valid_move
+        
+      
+    return best_move
 
